@@ -1,1 +1,1 @@
-fsdfvghsdvprint("Hello, GitHub!")
+print("Hello, GitHub!")

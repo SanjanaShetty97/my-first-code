@@ -1,0 +1,41 @@
+Create a Docker image for an application stored in a local repository and run the
+application using docker image.
+Step1: Download Docker Desktop from the official website:
+https://www.docker.com/products/docker-desktop
+Install Docker Desktop.
+Start Docker Desktop.
+Verify installation in terminal / command prompt: docker –version
+
+Step 2: Create a Local Application
+
+Create a folder for the application. Eg: myapp
+Inside the folder create a simple Python application. App.py
+
+Step 3: Create a Dockerfile
+
+Inside the same folder create a file named: Dockerfile(without .txt extension)
+Add the following content:
+FROM python:3.10
+WORKDIR /app
+COPY . .
+CMD ["python","app.py"]
+
+Step 4: Open terminal in the myapp folder.
+
+docker build -t myapp .
+Step 5: Verify the docker image
+docker images
+Step 6: Run the Docker Container
+docker run myapp
+
+
+
+
+
+
+
+
+
+
+
+

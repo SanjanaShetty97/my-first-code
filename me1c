@@ -1,0 +1,175 @@
+PART 1: Prepare Your Project
+📁 Step 1: Create your project folder
+
+Example:
+
+myapp/
+ ├── app.py
+ ├── requirements.txt
+ └── Dockerfile
+🐍 Example app.py
+print("Hello from Docker + Jenkins!")
+📦 requirements.txt
+# keep empty or add packages if needed
+🐳 Step 2: Create Dockerfile
+FROM python:3.9
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python", "app.py"]
+🧪 Step 3: Test Docker Locally (IMPORTANT)
+cd myapp
+docker build -t myapp .
+docker run myapp
+
+If this fails → Jenkins will also fail. Fix here first.
+
+📤 PART 2: Push Code to GitHub
+
+Use GitHub
+
+git init
+git add .
+git commit -m "Initial commit"
+
+git remote add origin https://github.com/your-username/docker_demo.git
+git branch -M main
+git push -u origin main
+🐳 PART 3: Push Image to Docker Hub (Manual First)
+
+Use Docker Hub
+
+Step 1: Login
+docker login
+Step 2: Tag
+docker tag myapp yourusername/myapp:v1
+Step 3: Push
+docker push yourusername/myapp:v1
+
+✔️ Confirm on Docker Hub website
+
+🔐 PART 4: Add Docker Hub Credentials in Jenkins
+
+Use Jenkins
+
+Steps:
+Open Jenkins → http://localhost:8080
+
+Go to:
+
+Manage Jenkins → Credentials → Global → Add Credentials
+Add:
+Kind: Username & Password
+ID: dockerhub-creds
+Username: your Docker Hub username
+Password: Access Token (NOT password)
+🔑 How to Get Docker Token
+Login to Docker Hub
+
+Go to:
+
+Account Settings → Security → Access Tokens
+Generate token
+📄 PART 5: Create Jenkinsfile (MOST IMPORTANT)
+
+Create a file named Jenkinsfile in your project root:
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "yourusername/myapp"
+        TAG = "v1"
+    }
+
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/your-username/docker_demo.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t $IMAGE_NAME:$TAG .'
+                }
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh 'docker push $IMAGE_NAME:$TAG'
+            }
+        }
+    }
+}
+⚙️ PART 6: Create Jenkins Pipeline Job
+Jenkins Dashboard → New Item
+Enter name → select Pipeline
+Configure:
+Pipeline → Pipeline script from SCM
+SCM → Git
+Repo URL → your GitHub repo
+Script Path → Jenkinsfile
+
+Save.
+
+▶️ PART 7: Run Build
+
+Click Build Now
+
+✔️ Expected stages:
+
+Clone
+Build
+Login
+Push
+🔁 PART 8: AUTOMATE using Webhook
+
+Use ngrok
+
+Step 1: Start ngrok
+ngrok http 8080
+
+You’ll get URL like:
+
+https://abc123.ngrok.io
+Step 2: Add Webhook in GitHub
+
+Go to your repo → Settings → Webhooks → Add webhook
+
+Payload URL:
+https://abc123.ngrok.io/github-webhook/
+Content type: application/json
+Event: Just push
+Step 3: Enable in Jenkins
+
+In job config:
+✔️ Enable:
+
+GitHub hook trigger for GITScm polling
+🔥 FINAL FLOW
+You push code → GitHub
+GitHub webhook → Jenkins
+Jenkins:
+Builds Docker image
+Logs into Docker Hub
+Pushes image

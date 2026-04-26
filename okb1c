@@ -1,0 +1,83 @@
+🐳 Step 0: Requirements (Before You Start)
+
+Make sure your system has:
+
+✔️ Windows 10/11 (64-bit)
+✔️ Virtualization enabled (in BIOS)
+✔️ WSL 2 installed (for Windows users)
+✔️ At least 4 GB RAM (8 GB recommended)
+🔽 Step 1: Install Docker Desktop
+Go to
+👉 Docker Desktop official website
+Download Docker Desktop for Windows
+Install it (keep default settings)
+During installation:
+Enable WSL 2 integration when prompted
+Restart your system after installation
+▶️ Step 2: Start Docker & Verify
+Open Docker Desktop
+Wait until it shows “Docker is running”
+Open Command Prompt / PowerShell and run:
+docker --version
+
+✅ Example output:
+
+Docker version 25.x.x
+📁 Step 3: Create Your Local Application
+Create a folder:
+myapp
+Inside myapp, create file:
+📄 app.py
+print("Hello from Docker!")
+📦 Step 4: Create Dockerfile
+
+Inside the same myapp folder:
+
+Create a file named exactly:
+
+Dockerfile
+
+⚠️ No .txt extension
+
+Add this content:
+FROM python:3.10
+WORKDIR /app
+COPY . .
+CMD ["python", "app.py"]
+💡 Folder Structure Should Look Like:
+myapp/
+│
+├── app.py
+└── Dockerfile
+⚙️ Step 5: Build Docker Image
+Open terminal inside myapp folder
+
+👉 (Right click → Open in Terminal / CMD)
+
+Run:
+docker build -t myapp .
+
+🔹 What happens:
+
+Docker reads the Dockerfile
+Downloads Python image
+Creates your custom image
+🔍 Step 6: Verify Image
+
+Run:
+
+docker images
+
+✅ You should see:
+
+REPOSITORY   TAG       IMAGE ID
+myapp        latest    xxxxxxxx
+🚀 Step 7: Run the Container
+
+Run:
+
+docker run myapp
+
+✅ Output:
+
+Hello from Docker!
